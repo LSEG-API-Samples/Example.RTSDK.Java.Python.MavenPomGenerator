@@ -14,15 +14,15 @@
 import sys
 import os
 import yaml
-from jinja2 import Environment, FileSystemLoader, exceptions
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
+# Constants
 config_file_path = './config/rtsdk_versions.yaml'
 template_folder = './templates/'
 template_file = 'rtsdk_maven_pom_xml.txt'
 output_file_path = './output/pom.xml'
 
-
-
+# Default SDK information
 sdk_information = {
     'api': 'EMA',
     'rtsdkversion': '',
@@ -51,7 +51,6 @@ if __name__ == '__main__':
             print(f'SDK version is {sdk_information["rtsdkversion"]}')
         else:
             latest_version = config_data['latest_version']
-            print(f'latest SDK version = {latest_version}')
             sdk_information['rtsdkversion'] = config_data['rtsdk_versions'][latest_version]
             print(f'not found the version, use latest version {sdk_information["rtsdkversion"]}')
 
@@ -64,10 +63,7 @@ if __name__ == '__main__':
         # Set pom artifactid
         sdk_information['artifactid'] = f'{sdk_information["api"]}_{sdk_version}'
         # set junit
-        if sdk_information['api'] == 'ETA':
-            sdk_information['junitscope'] = 'compile'
-        else:
-            sdk_information['junitscope'] = 'test'
+        sdk_information['junitscope'] = 'compile' if sdk_information['api'] == 'ETA' else 'test'
 
         # apply content to template
         content = template.render(
@@ -78,7 +74,7 @@ if __name__ == '__main__':
         with open(output_file_path, 'w', encoding='utf-8') as pom_file:
             pom_file.write(content)
             print(f'... wrote {output_file_path}')
-    except exceptions.TemplateNotFound:
+    except TemplateNotFound:
         print('Error: pom.xml file template not found')
     except FileNotFoundError:
         print('Error: Config File not found')
