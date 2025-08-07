@@ -14,23 +14,18 @@
 import sys
 import os
 import yaml
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, exceptions
 
 config_file_path = './config/rtsdk_versions.yaml'
 template_folder = './templates/'
 template_file = 'rtsdk_maven_pom_xml.txt'
 output_file_path = './output/pom.xml'
 
-api = 'EMA'
-rtsdkversion = '3.9.0.1'
-compat_jdk_version = '17'
-junitscope = 'test'
-namespace = 'com.refinitiv'
-transportapi = 'eta'
+
 
 sdk_information = {
-    'api': 'ETA',
-    'rtsdkversion': '3.8.3.0',
+    'api': 'EMA',
+    'rtsdkversion': '',
     'compat_jdk_version': 17,
     'junitscope': '',
     'namespace': 'com.refinitiv',
@@ -40,22 +35,51 @@ sdk_information = {
 
 if __name__ == '__main__':
     try:
+        # Load template file
         environment = Environment(loader=FileSystemLoader(template_folder))
         template = environment.get_template(template_file)
-        sdk_information['artifactid'] = f'{sdk_information["api"]}_{sdk_information["rtsdkversion"]}'
 
+        # Load RTSDK config from YAML file
+        with open(config_file_path, 'r', encoding='utf-8') as config_file:
+            config_data = yaml.safe_load(config_file)
+
+        # Set sdk_information
+        sdk_version = config_data['latest_version']
+        # Set version
+        if sdk_version in config_data['rtsdk_versions']:
+            sdk_information['rtsdkversion'] = config_data['rtsdk_versions'][sdk_version]
+            print(f'SDK version is {sdk_information["rtsdkversion"]}')
+        else:
+            latest_version = config_data['latest_version']
+            print(f'latest SDK version = {latest_version}')
+            sdk_information['rtsdkversion'] = config_data['rtsdk_versions'][latest_version]
+            print(f'not found the version, use latest version {sdk_information["rtsdkversion"]}')
+
+        # Set compat JDK
+        sdk_information['compat_jdk_version']=config_data['support_jdk_version']
+        print(f'Use SDK {sdk_information["compat_jdk_version"]}')
+        # Set namespace and transport api
+        sdk_information['namespace'] = config_data['namespace']['refinitiv']
+        sdk_information['transportapi'] = config_data['transportapi']['refinitiv']
+        # Set pom artifactid
+        sdk_information['artifactid'] = f'{sdk_information["api"]}_{sdk_version}'
+        # set junit
         if sdk_information['api'] == 'ETA':
             sdk_information['junitscope'] = 'compile'
         else:
             sdk_information['junitscope'] = 'test'
 
+        # apply content to template
         content = template.render(
             sdk_information
         )
+        # write pom.xml file
+        os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
         with open(output_file_path, 'w', encoding='utf-8') as pom_file:
             pom_file.write(content)
             print(f'... wrote {output_file_path}')
-
+    except exceptions.TemplateNotFound:
+        print('Error: pom.xml file template not found')
     except FileNotFoundError:
         print('Error: Config File not found')
     except UnicodeDecodeError:
