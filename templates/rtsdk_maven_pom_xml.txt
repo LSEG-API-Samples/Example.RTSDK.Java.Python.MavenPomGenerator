@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>{{ namespace  }}.{{ api.lower() }}</groupId>
+	<artifactId>{{ artifactid }}</artifactId>
+	<version>1.0</version>
+	<name>{{ artifactid }}</name>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>{{ compat_jdk_version }}</maven.compiler.source>
+		<maven.compiler.target>{{ compat_jdk_version }}</maven.compiler.target>
+		<rtsdk.version>{{ rtsdkversion }}</rtsdk.version>
+		<javafx.version>15.0.1</javafx.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>{{ junitscope }}</scope>
+		</dependency>
+		{% if api == 'EMA'%}
+		<dependency>
+			<groupId>{{ namespace  }}.ema
+			</groupId>
+			<artifactId>ema</artifactId>
+			<version>${rtsdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		{% elif api =='ETA' %}
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>1.9.5</version>
+		</dependency>
+		<dependency>
+			<groupId>{{ namespace  }}.{{ transportapi }}.valueadd.cache</groupId>
+			<artifactId>{{ transportapi  }}ValueAddCache</artifactId>
+			<version>${rtsdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>{{ namespace  }}.{{ transportapi }}.ansi</groupId>
+			<artifactId>ansipage</artifactId>
+			<version>${rtsdk.version}</version>
+		</dependency>
+        {% endif %}
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>
+										{% if api == 'EMA'%}
+                                        com.refinitiv.ema.examples.training.consumer.series100.ex100_MP_Streaming.Consumer
+                                        {% elif api =='ETA' %}
+                                        com.refinitiv.eta.valueadd.examples.consumer.Consumer
+                                        {% endif %}
+									</mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<!--
+        &#45;&#45;module-path <folder>\javafx-sdk-11.0.2\lib &#45;&#45;add-modules=javafx.controls,javafx.fxml
+        &#45; is a hyphen -
+    -->
+	<!-- Note: For ETA Copy jdacsUpalib.jar, json-20180130.jar and  xpp3-1.1.4c.jar from RTSDK-BinaryPack  folder to the libs folder too! -->
+</project>
