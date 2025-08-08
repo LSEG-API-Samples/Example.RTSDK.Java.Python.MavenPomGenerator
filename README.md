@@ -188,11 +188,11 @@ support_jdk_versions:
 4. Run the following command in a Command Prompt to install the project dependencies
 
     ```bash
-    $>(maven) pip install -r requirements.txt
+    $>(maven)> pip install -r requirements.txt
     ```
 52. Run the *maven_pom_generator.rb* script with the following command line argument:
     ``` bash
-    $>python maven_pom_generator.py --api <EMA (default)/ETA> --version <RTSDK version, ex 2.0.8>
+    $>(maven)>python maven_pom_generator.py --api <EMA (default)/ETA> --version <RTSDK version, ex 2.0.8>
     ```
 3. The result ```pom.xml``` file will be generated in the ```output``` folder.
 
