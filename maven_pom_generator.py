@@ -98,7 +98,7 @@ if __name__ == '__main__':
         os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
         with open(output_file_path, 'w', encoding='utf-8') as pom_file:
             pom_file.write(content)
-            print(f'... wrote {output_file_path}')
+            print(f'Done creating {output_file_path}')
     except TemplateNotFound:
         print('Error: pom.xml file template not found')
     except FileNotFoundError:
