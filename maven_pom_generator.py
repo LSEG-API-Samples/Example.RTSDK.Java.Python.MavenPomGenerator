@@ -11,8 +11,8 @@
 # OR MATERIALS USED IN CONNECTION # WITH THE EXAMPLE CODE. YOU EXPRESSLY AGREE THAT YOUR USE OF THE EXAMPLE CODE IS AT YOUR SOLE RISK.
 
 
-import sys
 import os
+import argparse
 import yaml
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
@@ -25,7 +25,7 @@ output_file_path = './output/pom.xml'
 # Default SDK information
 sdk_information = {
     'api': 'EMA',
-    'rtsdkversion': '',
+    'apiversion': '',
     'compat_jdk_version': 17,
     'junitscope': '',
     'namespace': 'com.refinitiv',
@@ -43,25 +43,50 @@ if __name__ == '__main__':
         with open(config_file_path, 'r', encoding='utf-8') as config_file:
             config_data = yaml.safe_load(config_file)
 
+        # some data from YAML file for use
+        latest_version = config_data.get('latest_version')
+        available_versions = config_data.get('rtsdk_versions', {})
+        supported_jdks = config_data.get('support_jdk_versions', {})
+
+        # Populate Command Line arguments
+        parser = argparse.ArgumentParser(
+            prog='RTSDK Java Maven pom.xml generator',
+            description='A Python file to generate Maven pom.xml file for ETA and EMA APIs',
+            epilog='This tool provides as is only, no support'
+        )
+        parser.add_argument('--api', type=str,
+                            help='EMA or ETA  [optional]',
+                            default='EMA', choices=['EMA', 'ETA'])
+        parser.add_argument('--version', type=str,
+                            help='RTSDK Java version [optional]',
+                            default=latest_version)
+        parser.add_argument('--jdkversion', type=int,
+                            help=f'Set JDK version (supported {supported_jdks}) [optional]',
+                            default=17, choices=supported_jdks)
+
+        args = parser.parse_args()
+        sdk_information['api'] = args.api
+        input_version = args.version
+        jdk_version = args.jdkversion
+
         # Set sdk_information
-        sdk_version = config_data['latest_version']
         # Set version
-        if sdk_version in config_data['rtsdk_versions']:
-            sdk_information['rtsdkversion'] = config_data['rtsdk_versions'][sdk_version]
-            print(f'SDK version is {sdk_information["rtsdkversion"]}')
+        if input_version not in available_versions:
+            sdk_information['apiversion'] = latest_version
+            print(
+                f'not found the version, use latest version {latest_version}')
         else:
-            latest_version = config_data['latest_version']
-            sdk_information['rtsdkversion'] = config_data['rtsdk_versions'][latest_version]
-            print(f'not found the version, use latest version {sdk_information["rtsdkversion"]}')
+            sdk_information['apiversion'] = available_versions[input_version]
+            print(f'API version is {sdk_information["apiversion"]}')
 
         # Set compat JDK
-        sdk_information['compat_jdk_version']=config_data['support_jdk_version']
-        print(f'Use SDK {sdk_information["compat_jdk_version"]}')
+        sdk_information['compat_jdk_version'] = jdk_version
+        print(f'Use Java SDK {jdk_version}')
         # Set namespace and transport api
         sdk_information['namespace'] = config_data['namespace']['refinitiv']
         sdk_information['transportapi'] = config_data['transportapi']['refinitiv']
         # Set pom artifactid
-        sdk_information['artifactid'] = f'{sdk_information["api"]}_{sdk_version}'
+        sdk_information['artifactid'] = f'{sdk_information["api"]}_{sdk_information["apiversion"]}'
         # set junit
         sdk_information['junitscope'] = 'compile' if sdk_information['api'] == 'ETA' else 'test'
 

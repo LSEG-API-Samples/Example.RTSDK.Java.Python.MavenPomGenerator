@@ -20,7 +20,10 @@ rtsdk_versions:
 
 latest_version: '2.3.0'
 
-support_jdk_version: '17' #11 #21
+support_jdk_versions:
+  - 11
+  - 17
+  - 21
 
 namespace:
   refinitiv: com.refinitiv
