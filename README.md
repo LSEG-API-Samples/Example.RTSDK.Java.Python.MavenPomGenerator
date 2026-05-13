@@ -1,6 +1,6 @@
 # RTSDK Java Maven Pom file Generator (using Python)
 - version: 1.0
-- Last update: Oct 2025
+- Last update: May 2026
 - Environment: Windows
 - Prerequisite: [Prerequisite](#prerequisite)
 
@@ -129,7 +129,7 @@ rtsdk_versions:
   2.1.2: '3.7.2.0'
   2.1.3: '3.7.3.0'
 
-latest_version: '2.1.3'
+latest_version: '2.4.0'
 ```
 
 You can add more versions by add the RTSDK Java version as a Key (```2.2.0```, ```2.2.1```, and so on), then add the [EMA/ETA Java Maven Central](https://central.sonatype.com/?smo=true) version as a string value. The EMA/ETA Java Maven Central version number is available on the *# Maven Central* section of the RTSDK Java's README file and the [Maven Central](https://central.sonatype.com/?smo=true) website.
