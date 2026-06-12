@@ -151,38 +151,30 @@ latest_version: '3.0.1'
 
 ## How to add new Supported JDK and JavaFX version
 
-The supported JDK versions are available in the ```config/rtsdk_versions.yaml``` file in the YAML format as follows:
+The supported JDK and JavaFX versions are consolidated in the ```config/rtsdk_versions.yaml``` file in the YAML format as follows:
 
 ```YAML
-support_jdk_versions:
-  - 11
-  - 17
-  - 21
-```
-
-Please refer to the [RTSDK Java Readme file](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/README.md) and [Change Log](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/CHANGELOG.md) files to can add more supported Java versions to the list.
-
-Example *with dummy versions*:
-
-```YAML
-support_jdk_versions:
-  - 11
-  - 17
-  - 21
-  - 25 
-```
-
-The supported JavaFX versions are also available in the ```config/rtsdk_versions.yaml``` file in the YAML format *inline with the supported JDK versions* as follows:
-
-```YAML
-javafx_versions:
+support_jdk_jfx_versions:
   11: '17.0.19'
   17: '21.0.11'
   21: '21.0.11'
   25: '25.0.3'
 ```
 
-Please refer to the [Java FX Roadmap and LTS releases](https://gluonhq.com/products/javafx/) information to can add more LTS versions to the list.
+Each JDK version maps to its compatible JavaFX version. This consolidated structure makes it clear that JDK and JavaFX versions are tightly coupled.
+
+Please refer to the [RTSDK Java Readme file](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/README.md), [Change Log](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/CHANGELOG.md), and [Java FX Roadmap and LTS releases](https://gluonhq.com/products/javafx/) to add new JDK/JavaFX pairs.
+
+Example *with dummy versions*:
+
+```YAML
+support_jdk_jfx_versions:
+  11: '17.0.19'
+  17: '21.0.11'
+  21: '21.0.11'
+  25: '25.0.3'
+  26: '26.0.1'
+```
 
 ## How to Use with Python
 
@@ -212,10 +204,10 @@ Please refer to the [Java FX Roadmap and LTS releases](https://gluonhq.com/produ
 Example result:
 ``` Bash
 (venv)$>python maven_pom_generator.py --api EMA --version 2.4.0
-API version is 3.10.0.1
-Use Java SDK 17
-Use JavaFX SDK 17.0.19
-Done creating ./output/pom.xml
+API version: 3.10.0.1
+Java SDK: 17
+JavaFX SDK: 21.0.11
+Generated: ./output/pom.xml
 ```
 
 ## <a id="ref"></a>References

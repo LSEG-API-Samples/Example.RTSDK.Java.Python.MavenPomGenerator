@@ -23,13 +23,7 @@ rtsdk_versions:
 
 latest_version: '2.4.0'
 
-support_jdk_versions:
-  - 11
-  - 17
-  - 21
-  - 25
-
-javafx_versions:
+support_jdk_jfx_versions:
   11: '17.0.19'
   17: '21.0.11'
   21: '21.0.11'

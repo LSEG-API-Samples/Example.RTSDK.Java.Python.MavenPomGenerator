@@ -5,107 +5,194 @@
 # |           Copyright LSEG 2026.       All rights reserved.                 --
 # |-----------------------------------------------------------------------------
 
-# Example Code Disclaimer:
-# ALL EXAMPLE CODE IS PROVIDED ON AN “AS IS” AND “AS AVAILABLE” BASIS FOR ILLUSTRATIVE PURPOSES ONLY. REFINITIV MAKES NO REPRESENTATIONS OR
-# WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THE EXAMPLE CODE, OR THE INFORMATION, CONTENT,
-# OR MATERIALS USED IN CONNECTION # WITH THE EXAMPLE CODE. YOU EXPRESSLY AGREE THAT YOUR USE OF THE EXAMPLE CODE IS AT YOUR SOLE RISK.
+"""
+RTSDK Java Maven pom.xml generator.
 
+Generates Maven pom.xml configuration files for RTSDK Java (EMA/ETA) applications
+based on version, JDK compatibility, and API selection. Supports RTSDK versions
+2.0.0.L1 and later.
+"""
 
-import os
 import argparse
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
 import yaml
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
-# Constants
-config_file_path = './config/rtsdk_versions.yaml'
-template_folder = './templates/'
-template_file = 'rtsdk_maven_pom_xml.txt'
-output_file_path = './output/pom.xml'
 
-# Default SDK information
-sdk_information = {
-    'api': 'EMA',
-    'apiversion': '',
-    'compat_jdk_version': 17,
-    'compat_jfx_version': '',
-    'junitscope': '',
-    'namespace': 'com.refinitiv',
-    'transportapi': 'eta',
-    'artifactid': ''
-}
+@dataclass
+class Config:
+    """Configuration paths for the generator."""
+
+    config_file: Path = Path('./config/rtsdk_versions.yaml')
+    template_folder: Path = Path('./templates')
+    template_file: str = 'rtsdk_maven_pom_xml.txt'
+    output_file: Path = Path('./output/pom.xml')
+
+def load_config(config_path: Path) -> dict[str, Any]:
+    """Load RTSDK configuration from YAML file.
+    
+    Args:
+        config_path: Path to the rtsdk_versions.yaml config file
+        
+    Returns:
+        Dictionary containing version mappings, supported JDKs, and JavaFX versions
+        
+    Raises:
+        FileNotFoundError: If config file does not exist
+        UnicodeDecodeError: If file cannot be decoded as UTF-8
+    """
+    with open(config_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
+
+def setup_argument_parser(config: dict[str, Any]) -> argparse.ArgumentParser:
+    """Set up command-line argument parser.
+    
+    Args:
+        config: Configuration dictionary with supported versions and JDKs
+        
+    Returns:
+        Configured ArgumentParser instance
+    """
+    supported_jdk_jfx = config.get('support_jdk_jfx_versions', {})
+    supported_jdks = list(supported_jdk_jfx.keys())
+    latest_version = config.get('latest_version', '')
+    
+    parser = argparse.ArgumentParser(
+        prog='RTSDK Java Maven pom.xml generator',
+        description='Generate Maven pom.xml for ETA and EMA APIs',
+        epilog='This tool provides as is only, no support'
+    )
+    parser.add_argument(
+        '--api',
+        type=str,
+        default='EMA',
+        choices=['EMA', 'ETA'],
+        help='API type: EMA or ETA (default: EMA)'
+    )
+    parser.add_argument(
+        '--version',
+        type=str,
+        default=latest_version,
+        help=f'RTSDK Java version (default: {latest_version})'
+    )
+    parser.add_argument(
+        '--jdkversion',
+        type=int,
+        default=17,
+        choices=supported_jdks,
+        help=f'JDK version: {supported_jdks} (default: 17)'
+    )
+    return parser
+
+
+def build_sdk_context(
+    api: str,
+    input_version: str,
+    jdk_version: int,
+    config: dict[str, Any]
+) -> dict[str, Any]:
+    """Build SDK information context for template rendering.
+    
+    Args:
+        api: API type (EMA or ETA)
+        input_version: Requested RTSDK version
+        jdk_version: Requested JDK version
+        config: Configuration dictionary
+        
+    Returns:
+        Dictionary with resolved SDK information
+    """
+    available_versions = config.get('rtsdk_versions', {})
+    supported_jdk_jfx = config.get('support_jdk_jfx_versions', {})
+    latest_version = config.get('latest_version', '')
+    
+    # Resolve RTSDK version (fallback to latest if not found)
+    if input_version not in available_versions:
+        api_version = latest_version
+        print(f'Version not found; using latest: {latest_version}')
+    else:
+        api_version = available_versions[input_version]
+        print(f'API version: {api_version}')
+    
+    # Resolve JavaFX version
+    javafx_version = supported_jdk_jfx[jdk_version]
+    print(f'Java SDK: {jdk_version}')
+    print(f'JavaFX SDK: {javafx_version}')
+    
+    # Determine JUnit scope based on API
+    junit_scope = 'compile' if api == 'ETA' else 'test'
+    
+    return {
+        'api': api,
+        'apiversion': api_version,
+        'compat_jdk_version': jdk_version,
+        'compat_jfx_version': javafx_version,
+        'junitscope': junit_scope,
+        'namespace': config['namespace']['refinitiv'],
+        'transportapi': config['transportapi']['refinitiv'],
+        'artifactid': f'{api}_{api_version}'
+    }
+
+
+def render_and_write_pom(
+    template_path: Path,
+    output_path: Path,
+    context: dict[str, Any]
+) -> None:
+    """Render Jinja2 template and write pom.xml file.
+    
+    Args:
+        template_path: Path to template folder
+        output_path: Path where pom.xml will be written
+        context: Context dictionary for template rendering
+        
+    Raises:
+        TemplateNotFound: If template file cannot be found
+    """
+    env = Environment(loader=FileSystemLoader(template_path))
+    template = env.get_template('rtsdk_maven_pom_xml.txt')
+    content = template.render(context)
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(content, encoding='utf-8')
+    print(f'Generated: {output_path}')
+
+
+def main() -> None:
+    """Main entry point for the pom.xml generator."""
+    config_obj = Config()
+    
+    try:
+        config = load_config(config_obj.config_file)
+        parser = setup_argument_parser(config)
+        args = parser.parse_args()
+        
+        sdk_context = build_sdk_context(
+            args.api,
+            args.version,
+            args.jdkversion,
+            config
+        )
+        
+        render_and_write_pom(
+            config_obj.template_folder,
+            config_obj.output_file,
+            sdk_context
+        )
+    except FileNotFoundError as e:
+        print(f'Error: Config file not found: {e}')
+    except UnicodeDecodeError:
+        print('Error: Config file encoding error (expected UTF-8)')
+    except TemplateNotFound as e:
+        print(f'Error: Template not found: {e}')
+    except KeyError as e:
+        print(f'Error: Missing config key: {e}')
+
 
 if __name__ == '__main__':
-    try:
-        # Load template file
-        environment = Environment(loader=FileSystemLoader(template_folder))
-        template = environment.get_template(template_file)
+    main()
 
-        # Load RTSDK config from YAML file
-        with open(config_file_path, 'r', encoding='utf-8') as config_file:
-            config_data = yaml.safe_load(config_file)
-
-        # some data from YAML file for use
-        latest_version = config_data.get('latest_version')
-        available_versions = config_data.get('rtsdk_versions', {})
-        supported_jdks = config_data.get('support_jdk_versions', {})
-        supported_jfxs = config_data.get('javafx_versions', {})
-
-        # Populate Command Line arguments
-        parser = argparse.ArgumentParser(
-            prog='RTSDK Java Maven pom.xml generator',
-            description='A Python file to generate Maven pom.xml file for ETA and EMA APIs',
-            epilog='This tool provides as is only, no support'
-        )
-        parser.add_argument('--api', type=str,
-                            help='EMA or ETA  [optional]',
-                            default='EMA', choices=['EMA', 'ETA'])
-        parser.add_argument('--version', type=str,
-                            help='RTSDK Java version [optional]',
-                            default=latest_version)
-        parser.add_argument('--jdkversion', type=int,
-                            help=f'Set JDK version (supported {supported_jdks} - default 17) [optional]',
-                            default=17, choices=supported_jdks)
-
-        args = parser.parse_args()
-        sdk_information['api'] = args.api
-        input_version = args.version
-        jdk_version = args.jdkversion
-
-        # Set sdk_information
-        # Set version
-        if input_version not in available_versions:
-            sdk_information['apiversion'] = latest_version
-            print(
-                f'not found the version, use latest version {latest_version}')
-        else:
-            sdk_information['apiversion'] = available_versions[input_version]
-            print(f'API version is {sdk_information["apiversion"]}')
-
-        # Set compat JDK
-        sdk_information['compat_jdk_version'] = jdk_version
-        print(f'Use Java SDK {jdk_version}')
-        sdk_information['compat_jfx_version'] = supported_jfxs[jdk_version]
-        print(f'Use JavaFX SDK {sdk_information["compat_jfx_version"]}')
-        # Set namespace and transport api
-        sdk_information['namespace'] = config_data['namespace']['refinitiv']
-        sdk_information['transportapi'] = config_data['transportapi']['refinitiv']
-        # Set pom artifactid
-        sdk_information['artifactid'] = f'{sdk_information["api"]}_{sdk_information["apiversion"]}'
-        # set junit
-        sdk_information['junitscope'] = 'compile' if sdk_information['api'] == 'ETA' else 'test'
-
-        # apply content to template
-        content = template.render(
-            sdk_information
-        )
-        # write pom.xml file
-        os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
-        with open(output_file_path, 'w', encoding='utf-8') as pom_file:
-            pom_file.write(content)
-            print(f'Done creating {output_file_path}')
-    except TemplateNotFound:
-        print('Error: pom.xml file template not found')
-    except FileNotFoundError:
-        print('Error: Config File not found')
-    except UnicodeDecodeError:
-        print('Error: Config File decoding error')

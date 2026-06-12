@@ -35,6 +35,7 @@ The default output path is `output\pom.xml`.
 - Preserve the API-specific behavior:
   - EMA uses `com.refinitiv.ema`, JavaFX dependencies, and test-scoped JUnit.
   - ETA uses `com.refinitiv.eta.*`, Mockito, and compile-scoped JUnit.
-- When adding new RTSDK releases, update `rtsdk_versions`, `latest_version`, `support_jdk_versions`, and `javafx_versions` together so the CLI choices stay consistent.
+- When adding new RTSDK releases, update `rtsdk_versions`, `latest_version`, and `support_jdk_jfx_versions` together so CLI choices stay consistent.
+  - `support_jdk_jfx_versions` maps each JDK to its compatible JavaFX version (e.g., 17: '21.0.11')
 - The generated artifact ID is derived from the API and resolved RTSDK version, so changes to version resolution affect output naming.
 - The repository ignores `venv/` and `output/`; generated files should stay out of source control.
