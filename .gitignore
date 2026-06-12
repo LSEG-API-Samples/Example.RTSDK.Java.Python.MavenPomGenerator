@@ -1,2 +1,8 @@
 venv/
 output/
+.pytest_cache/
+htmlcov/
+.coverage
+*.pyc
+__pycache__/
+.vscode/
