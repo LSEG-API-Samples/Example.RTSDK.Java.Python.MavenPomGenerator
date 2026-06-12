@@ -217,26 +217,27 @@ Generated: ./output/pom.xml
 ## Testing
 
 This project includes a comprehensive test suite using [pytest](https://pytest.org/). The test suite validates all functionality with 96% code coverage and 68 passing tests.
+Run tests only in the same activated project virtual environment from the "How to Use with Python" section, not with global Python or global pytest.
 
 ### Running Tests
 
 ```bash
 # Run all tests
-pytest tests/ -v
+(venv)$>python -m pytest tests/ -v
 
 # Run tests with coverage report (generates htmlcov/index.html)
-pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
+(venv)$>python -m pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
 
 # Run specific test module
-pytest tests/test_config_loading.py -v
-pytest tests/test_argument_parser.py -v
-pytest tests/test_sdk_context.py -v
-pytest tests/test_template_rendering.py -v
-pytest tests/test_integration.py -v
+(venv)$>python -m pytest tests/test_config_loading.py -v
+(venv)$>python -m pytest tests/test_argument_parser.py -v
+(venv)$>python -m pytest tests/test_sdk_context.py -v
+(venv)$>python -m pytest tests/test_template_rendering.py -v
+(venv)$>python -m pytest tests/test_integration.py -v
 
 # Run tests matching a pattern
-pytest tests/ -k "jdk" -v
-pytest tests/ -k "ema" -v
+(venv)$>python -m pytest tests/ -k "jdk" -v
+(venv)$>python -m pytest tests/ -k "ema" -v
 ```
 
 ### Test Coverage

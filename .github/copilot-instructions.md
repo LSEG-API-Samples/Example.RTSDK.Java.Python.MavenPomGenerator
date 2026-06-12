@@ -21,19 +21,20 @@ The default output path is `output\pom.xml`.
 ## Testing
 
 This project has a comprehensive pytest test suite with 96% code coverage (68 tests).
+Run tests only after activating the project virtual environment (`venv\Scripts\activate`), and do not use global Python or global pytest.
 
 ```powershell
 # Run all tests
-pytest tests/ -v
+python -m pytest tests/ -v
 
 # Run tests with coverage report
-pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
+python -m pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
 
 # Run specific test module
-pytest tests/test_config_loading.py -v
+python -m pytest tests/test_config_loading.py -v
 
 # Run tests matching a pattern
-pytest tests/ -k "jdk" -v
+python -m pytest tests/ -k "jdk" -v
 ```
 
 Test modules:
