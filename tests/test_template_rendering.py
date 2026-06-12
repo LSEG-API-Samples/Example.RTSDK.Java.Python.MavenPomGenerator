@@ -1,4 +1,14 @@
-"""Tests for template rendering and pom.xml generation."""
+"""Tests for template rendering and pom.xml generation.
+
+This module validates that the Jinja2 template renders correctly and produces
+valid, well-formed pom.xml files. Tests cover:
+- File creation (output directory and file generation)
+- XML validity and parsing
+- API-specific groupId values (com.refinitiv.ema vs com.refinitiv)
+- Compiler version properties matching JDK selection
+- API-specific dependencies (JavaFX for EMA, Mockito for ETA)
+- Correct property substitution across various configurations
+"""
 
 import pytest
 import xml.etree.ElementTree as ET
@@ -8,8 +18,16 @@ from typing import Any
 from maven_pom_generator import render_and_write_pom
 
 
+# ============================================================================
+# File Creation Tests
+# ============================================================================
+
 def test_render_and_write_pom_creates_output_dir(output_dir: Path, test_config: dict[str, Any]) -> None:
-    """Test that render_and_write_pom creates output directory."""
+    """Verify that render_and_write_pom creates the output directory.
+    
+    When writing to a path whose parent directories don't exist,
+    the function should create them automatically.
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'EMA',
@@ -26,7 +44,11 @@ def test_render_and_write_pom_creates_output_dir(output_dir: Path, test_config: 
 
 
 def test_render_and_write_pom_creates_file(output_dir: Path, test_config: dict[str, Any]) -> None:
-    """Test that render_and_write_pom creates pom.xml file."""
+    """Verify that render_and_write_pom creates a non-empty pom.xml file.
+    
+    The file should be created at the specified path with content
+    (st_size > 0 ensures it's not empty).
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'EMA',
@@ -43,8 +65,16 @@ def test_render_and_write_pom_creates_file(output_dir: Path, test_config: dict[s
     assert output_file.stat().st_size > 0
 
 
+# ============================================================================
+# XML Validation Tests
+# ============================================================================
+
 def test_render_and_write_pom_produces_valid_xml(output_dir: Path) -> None:
-    """Test that render_and_write_pom produces valid XML."""
+    """Verify that render_and_write_pom produces valid, parseable XML.
+    
+    The generated file must be well-formed XML that can be parsed
+    without errors using standard XML parsers.
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'EMA',
@@ -64,8 +94,16 @@ def test_render_and_write_pom_produces_valid_xml(output_dir: Path) -> None:
     assert root is not None
 
 
+# ============================================================================
+# GroupId Tests (API-Specific)
+# ============================================================================
+
 def test_render_and_write_pom_ema_groupid(output_dir: Path) -> None:
-    """Test that EMA pom.xml has correct groupId."""
+    """Verify that EMA pom.xml has the correct groupId.
+    
+    EMA-generated pom.xml should use 'com.refinitiv.ema' as groupId
+    to distinguish EMA projects from other API types.
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'EMA',
@@ -88,7 +126,11 @@ def test_render_and_write_pom_ema_groupid(output_dir: Path) -> None:
 
 
 def test_render_and_write_pom_eta_groupid(output_dir: Path) -> None:
-    """Test that ETA pom.xml has correct groupId."""
+    """Verify that ETA pom.xml has the correct groupId.
+    
+    ETA-generated pom.xml should use 'com.refinitiv' (without 'ema')
+    as groupId to distinguish it from EMA projects.
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'ETA',
@@ -110,8 +152,16 @@ def test_render_and_write_pom_eta_groupid(output_dir: Path) -> None:
     assert 'com.refinitiv' in groupid.text
 
 
+# ============================================================================
+# Compiler Version Tests
+# ============================================================================
+
 def test_render_and_write_pom_jdk_version(output_dir: Path) -> None:
-    """Test that generated pom.xml has correct JDK version."""
+    """Verify that generated pom.xml has correct maven.compiler properties.
+    
+    The source and target properties should match the requested JDK version.
+    Here we test with JDK 21.
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'EMA',
@@ -130,8 +180,16 @@ def test_render_and_write_pom_jdk_version(output_dir: Path) -> None:
     assert '<maven.compiler.target>21</maven.compiler.target>' in content
 
 
+# ============================================================================
+# API-Specific Dependencies Tests
+# ============================================================================
+
 def test_render_and_write_pom_ema_has_javafx(output_dir: Path) -> None:
-    """Test that EMA pom.xml includes JavaFX dependencies."""
+    """Verify that EMA pom.xml includes JavaFX dependencies.
+    
+    EMA uses JavaFX for GUI, so the pom.xml must include javafx-fxml
+    and javafx-controls dependencies.
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'EMA',
@@ -151,7 +209,11 @@ def test_render_and_write_pom_ema_has_javafx(output_dir: Path) -> None:
 
 
 def test_render_and_write_pom_eta_has_mockito(output_dir: Path) -> None:
-    """Test that ETA pom.xml includes Mockito dependency."""
+    """Verify that ETA pom.xml includes Mockito dependency.
+    
+    ETA examples use Mockito for mocking in tests, so this dependency
+    must be present in the generated pom.xml.
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'ETA',
@@ -169,6 +231,10 @@ def test_render_and_write_pom_eta_has_mockito(output_dir: Path) -> None:
     assert 'mockito-core' in content
 
 
+# ============================================================================
+# Property Substitution Tests
+# ============================================================================
+
 @pytest.mark.parametrize('jdk,expected_javafx', [
     (11, '17.0.19'),
     (17, '21.0.11'),
@@ -176,7 +242,11 @@ def test_render_and_write_pom_eta_has_mockito(output_dir: Path) -> None:
     (25, '25.0.3'),
 ])
 def test_render_and_write_pom_javafx_versions(output_dir: Path, jdk: int, expected_javafx: str) -> None:
-    """Test JavaFX version in generated pom.xml."""
+    """Test that JavaFX version property is correctly substituted.
+    
+    For each JDK version, the template should render with the correct
+    corresponding JavaFX version (e.g., JDK 21 -> JavaFX 21.0.11).
+    """
     output_file = output_dir / 'pom.xml'
     context = {
         'api': 'EMA',
