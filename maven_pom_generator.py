@@ -2,7 +2,7 @@
 # |            This source code is provided under the MIT license             --
 # |  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 # |                See the project's LICENSE.md for details.                  --
-# |           Copyright LSEG 2025.       All rights reserved.                 --
+# |           Copyright LSEG 2026.       All rights reserved.                 --
 # |-----------------------------------------------------------------------------
 
 # Example Code Disclaimer:
@@ -27,6 +27,7 @@ sdk_information = {
     'api': 'EMA',
     'apiversion': '',
     'compat_jdk_version': 17,
+    'compat_jfx_version': '',
     'junitscope': '',
     'namespace': 'com.refinitiv',
     'transportapi': 'eta',
@@ -47,6 +48,7 @@ if __name__ == '__main__':
         latest_version = config_data.get('latest_version')
         available_versions = config_data.get('rtsdk_versions', {})
         supported_jdks = config_data.get('support_jdk_versions', {})
+        supported_jfxs = config_data.get('javafx_versions', {})
 
         # Populate Command Line arguments
         parser = argparse.ArgumentParser(
@@ -61,7 +63,7 @@ if __name__ == '__main__':
                             help='RTSDK Java version [optional]',
                             default=latest_version)
         parser.add_argument('--jdkversion', type=int,
-                            help=f'Set JDK version (supported {supported_jdks}) [optional]',
+                            help=f'Set JDK version (supported {supported_jdks} - default 17) [optional]',
                             default=17, choices=supported_jdks)
 
         args = parser.parse_args()
@@ -82,6 +84,8 @@ if __name__ == '__main__':
         # Set compat JDK
         sdk_information['compat_jdk_version'] = jdk_version
         print(f'Use Java SDK {jdk_version}')
+        sdk_information['compat_jfx_version'] = supported_jfxs[jdk_version]
+        print(f'Use JavaFX SDK {sdk_information["compat_jfx_version"]}')
         # Set namespace and transport api
         sdk_information['namespace'] = config_data['namespace']['refinitiv']
         sdk_information['transportapi'] = config_data['transportapi']['refinitiv']

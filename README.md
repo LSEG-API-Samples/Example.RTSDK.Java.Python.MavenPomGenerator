@@ -1,6 +1,6 @@
 # RTSDK Java Maven Pom file Generator (using Python)
 - version: 1.0
-- Last update: May 2026
+- Last update: June 2026
 - Environment: Windows
 - Prerequisite: [Prerequisite](#prerequisite)
 
@@ -86,9 +86,10 @@ The pom.xml file for the ETA Java application is the following. The Maven can au
     ...
 <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
-    <rtsdk.version>3.7.2.0</rtsdk.version>
+	<maven.compiler.source>25</maven.compiler.source>
+	<maven.compiler.target>25</maven.compiler.target>
+	<rtsdk.version>3.10.0.1</rtsdk.version>
+	<javafx.version>25.0.3</javafx.version>
 </properties>
     <!-- RTSDK -->
     <!-- For ETA Java Project -->
@@ -148,7 +149,7 @@ rtsdk_versions:
 latest_version: '3.0.1'
 ```
 
-## How to add new Supported JDK version
+## How to add new Supported JDK and JavaFX version
 
 The supported JDK versions are available in the ```config/rtsdk_versions.yaml``` file in the YAML format as follows:
 
@@ -159,7 +160,7 @@ support_jdk_versions:
   - 21
 ```
 
-Please refer to the [RTSDK Java Readme file](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/README.md) to can add more versions to the list.
+Please refer to the [RTSDK Java Readme file](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/README.md) and [Change Log](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/CHANGELOG.md) files to can add more supported Java versions to the list.
 
 Example *with dummy versions*:
 
@@ -170,6 +171,18 @@ support_jdk_versions:
   - 21
   - 25 
 ```
+
+The supported JavaFX versions are also available in the ```config/rtsdk_versions.yaml``` file in the YAML format *inline with the supported JDK versions* as follows:
+
+```YAML
+javafx_versions:
+  11: '17.0.19'
+  17: '21.0.11'
+  21: '21.0.11'
+  25: '25.0.3'
+```
+
+Please refer to the [Java FX Roadmap and LTS releases](https://gluonhq.com/products/javafx/) information to can add more LTS versions to the list.
 
 ## How to Use with Python
 
@@ -198,9 +211,10 @@ support_jdk_versions:
 
 Example result:
 ``` Bash
-(venv)$>python maven_pom_generator.py --api EMA --version 2.2.2
-API version is 3.8.2.0
+(venv)$>python maven_pom_generator.py --api EMA --version 2.4.0
+API version is 3.10.0.1
 Use Java SDK 17
+Use JavaFX SDK 17.0.19
 Done creating ./output/pom.xml
 ```
 
@@ -214,4 +228,5 @@ Done creating ./output/pom.xml
 - [Maven Central Repository Search](https://search.maven.org/)
 - [Developer Article: How to Set Up Refinitiv Real-Time SDK Java Application with Maven](https://developers.lseg.com/en/article-catalog/article/how-to-set-up-refinitiv-real-time-sdk-java-application-with-mave).
 - [Developer Article: How to deploy and run Real-Time Java Application with Maven in Docker](https://developers.lseg.com/en/article-catalog/article/how-to-deploy-and-run-real-time-java-application-with-maven-in-d).
-- [How to Set Up Real-Time SDK Java Application with Maven on the Eclipse IDE](https://developers.lseg.com/en/article-catalog/article/how-to-set-up-real-time-sdk-java-application-with-maven-on-the-e) on the the [LSEG Developer Community](https://developers.lseg.com/) web site.
+- [How to Set Up Real-Time SDK Java Application with Maven on the Eclipse IDE](https://developers.lseg.com/en/article-catalog/article/how-to-set-up-real-time-sdk-java-application-with-maven-on-the-e) on the the [LSEG Developer Community](https://developers.lseg.com/) website.
+- [JavaFX](https://gluonhq.com/products/javafx/) product website.

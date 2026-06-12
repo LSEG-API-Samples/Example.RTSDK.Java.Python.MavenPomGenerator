@@ -13,7 +13,7 @@
 		<maven.compiler.source>{{ compat_jdk_version }}</maven.compiler.source>
 		<maven.compiler.target>{{ compat_jdk_version }}</maven.compiler.target>
 		<rtsdk.version>{{ apiversion }}</rtsdk.version>
-		<javafx.version>15.0.1</javafx.version>
+		<javafx.version>{{ compat_jfx_version }}</javafx.version>
 	</properties>
 	<dependencies>
 		<dependency>
