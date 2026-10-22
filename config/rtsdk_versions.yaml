@@ -20,8 +20,9 @@ rtsdk_versions:
   2.3.1: '3.9.1.1'
   2.3.2: '3.9.2.0'
   2.4.0: '3.10.0.1'
+  2.4.1: '3.10.1.0'
 
-latest_version: '2.4.0'
+latest_version: '2.4.1'
 
 support_jdk_jfx_versions:
   11: '17.0.19'

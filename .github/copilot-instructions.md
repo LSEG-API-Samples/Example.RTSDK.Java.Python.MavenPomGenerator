@@ -8,8 +8,8 @@ The entry point is `maven_pom_generator.py`, which loads RTSDK version data from
 ## Run commands
 
 ```powershell
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
 python maven_pom_generator.py --api EMA --version 2.4.0 --jdkversion 17
 python maven_pom_generator.py --help
@@ -21,7 +21,7 @@ The default output path is `output\pom.xml`.
 ## Testing
 
 This project has a comprehensive pytest test suite with 96% code coverage (68 tests).
-Run tests only after activating the project virtual environment (`venv\Scripts\activate`), and do not use global Python or global pytest.
+Run tests only after activating the project virtual environment (`.venv\Scripts\activate`), and do not use global Python or global pytest.
 
 ```powershell
 # Run all tests
@@ -65,6 +65,6 @@ Test modules:
 - When adding new RTSDK releases, update `rtsdk_versions`, `latest_version`, and `support_jdk_jfx_versions` together so CLI choices stay consistent.
   - `support_jdk_jfx_versions` maps each JDK to its compatible JavaFX version (e.g., 17: '21.0.11')
 - The generated artifact ID is derived from the API and resolved RTSDK version, so changes to version resolution affect output naming.
-- The repository ignores `venv/`, `output/`, `.pytest_cache/`, and other build artifacts; generated files should stay out of source control.
+- The repository ignores `.venv/`, `output/`, `.pytest_cache/`, and other build artifacts; generated files should stay out of source control.
 - All code changes should include corresponding test updates. Aim for >90% code coverage.
 

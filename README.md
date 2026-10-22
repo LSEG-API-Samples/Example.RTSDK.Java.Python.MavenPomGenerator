@@ -1,6 +1,6 @@
 # RTSDK Java Maven Pom file Generator (using Python)
 - version: 1.0
-- Last update: June 2026
+- Last update: October 2026
 - Environment: Windows
 - Prerequisite: [Prerequisite](#prerequisite)
 
@@ -179,35 +179,35 @@ support_jdk_jfx_versions:
 ## How to Use with Python
 
 1. Open a Command Prompt and go to project's folder
-2. Run the following command in a Command Prompt to create a Python virtual environment named *venv* for the project.
+2. Run the following command in a Command Prompt to create a Python virtual environment named *.venv* for the project.
 
     ```bash
-    $>python -m venv venv
+    $>python -m venv .venv
     ```
 
-3. Once the environment is created, activate a virtual environment named ```venv``` with this command in a Command Prompt
+3. Once the environment is created, activate a virtual environment named ```.venv``` with this command in a Command Prompt
 
     ```bash
-    $>venv\Scripts\activate
+    $>.venv\Scripts\activate
     ```
 
 4. Run the following command in a Command Prompt to install the project dependencies
 
     ```bash
-    $>(venv)> pip install -r requirements.txt
+    $>(.venv)> pip install -r requirements.txt
     ```
 
 5. Run the *maven_pom_generator.py* script with the following command line argument:
 
     ```bash
-    $>(venv)>python maven_pom_generator.py --api <EMA (default)/ETA> --version <RTSDK version, ex 2.0.8>
+    $>(.venv)>python maven_pom_generator.py --api <EMA (default)/ETA> --version <RTSDK version, ex 2.0.8>
     ```
 
 6. The result ```pom.xml``` file will be generated in the ```output``` folder.
 
 Example result:
 ```Bash
-(venv)$>python maven_pom_generator.py --api EMA --version 2.4.0
+(.venv)$>python maven_pom_generator.py --api EMA --version 2.4.0
 API version: 3.10.0.1
 Java SDK: 17
 JavaFX SDK: 21.0.11
@@ -223,21 +223,21 @@ Run tests only in the same activated project virtual environment from the "How t
 
 ```bash
 # Run all tests
-(venv)$>python -m pytest tests/ -v
+(.venv)$>python -m pytest tests/ -v
 
 # Run tests with coverage report (generates htmlcov/index.html)
-(venv)$>python -m pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
+(.venv)$>python -m pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
 
 # Run specific test module
-(venv)$>python -m pytest tests/test_config_loading.py -v
-(venv)$>python -m pytest tests/test_argument_parser.py -v
-(venv)$>python -m pytest tests/test_sdk_context.py -v
-(venv)$>python -m pytest tests/test_template_rendering.py -v
-(venv)$>python -m pytest tests/test_integration.py -v
+(.venv)$>python -m pytest tests/test_config_loading.py -v
+(.venv)$>python -m pytest tests/test_argument_parser.py -v
+(.venv)$>python -m pytest tests/test_sdk_context.py -v
+(.venv)$>python -m pytest tests/test_template_rendering.py -v
+(.venv)$>python -m pytest tests/test_integration.py -v
 
 # Run tests matching a pattern
-(venv)$>python -m pytest tests/ -k "jdk" -v
-(venv)$>python -m pytest tests/ -k "ema" -v
+(.venv)$>python -m pytest tests/ -k "jdk" -v
+(.venv)$>python -m pytest tests/ -k "ema" -v
 ```
 
 ### Test Coverage
